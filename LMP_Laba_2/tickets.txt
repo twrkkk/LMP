@@ -1,0 +1,35 @@
+Moscow
+T779MA
+Shein Evgeny Alexandrovich
+123
+9 11 2022
+------------
+Voronezh
+T887MA
+Shein Evgeny Alexandrovich
+457
+10 11 2022
+------------
+Voronezh
+T887MA
+Shein Evgeny Alexandrovich
+456
+12 11 2022
+------------
+Sochi
+T887MA
+Shein Evgeny Alexandrovich
+456
+9 11 2022
+------------
+Anapa
+T887MA
+Shein Evgeny Alexandrovich
+456
+10 11 2022
+------------
+Pushkin
+T887MA
+Shein Evgeny Alexandrovich
+456
+10 11 2022
