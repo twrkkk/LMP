@@ -354,12 +354,13 @@ void main()
 	int count;
 	file >> count;
 	Tree root = Build_Search("numbers.txt");
+
+	std::cout << "Binary Search Tree \n";
 	Print(root, 0);
 	std::cout << '\n';
-
-	std::cout << recursion_task(root);
+	std::cout << "Left Sheet : ";
+	//std::cout << recursion_task(root);
 	std::cout << non_recursion(root);
-
 	std::cout << '\n';
 
 	Clear(root);
