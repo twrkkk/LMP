@@ -126,21 +126,35 @@ bool task_1(TrieTree& t, const std::string word, size_t i)
     return result;
 }
 
+bool all_flags_true(bool* flags, size_t count)
+{
+    bool res = true;
+    for (size_t i = 0; i < count && res; i++)
+    {
+        if (!flags[i])
+            res = false;
+    }
+    return res;
+}
+
+void reset_all_flags(bool* flags, size_t count)
+{
+    for (size_t i = 0; i < count; i++)
+    {
+        flags[i] = false;
+    }
+}
+
 void task_11_help(TrieTree& t, std::string set, std::string word, bool* flags)
 {
     if (t->eow)
     {
-        bool res = true;
-        for (int i = 0; i < set.length() && res; i++)
+        bool res = all_flags_true(flags, set.length());
+        
+        if (res)
         {
-            if (!flags[i])
-                res = false;
-        }
-        if(res)
             std::cout << word << '\n';
-        for (int i = 0; i < set.length() && res; i++)
-        {
-            flags[i] = false;
+            reset_all_flags(flags, set.length());
         }
     }
     for (size_t i = 0; i < 26; ++i)
@@ -161,9 +175,7 @@ void task_11(TrieTree& t, std::string set)
 {
     bool* flags = new bool[set.length()]{0};
     if (t)
-    {
         task_11_help(t, set, "", flags);
-    }
 }
 
 void clear(TrieTree& t)
@@ -178,36 +190,40 @@ void clear(TrieTree& t)
 
 int main()
 {
-    std::ifstream file("D.txt");
-    if (file)
+    bool flag = true;
+    while (flag)
     {
-        TrieTree root;
-        init(root);
-        std::string word;
-        while (std::getline(file, word))
+        std::ifstream file("D.txt");
+        if (file)
         {
-            //std::cin >> word;
-            if (word.length())
-                add(root, word, 0);
+            TrieTree root;
+            init(root);
+            std::string word;
+            while (std::getline(file, word))
+            {
+                if (word.length())
+                    add(root, word, 0);
+            }
+            print(root, "");
+
+            std::cout << "-----------------------\n";
+
+            std::string set;
+            std::cout << "Enter set \n";
+            std::cin >> set;
+            std::cout << "-----------------------\n";
+            task_11(root, set);
+
+            std::cout << "-----------------------\n";
+            
+            print(root, "");
+            clear(root);
         }
-        print(root, "");
-
-        std::cout << "-----------------------\n";
-
-        //(task_1(root, "du", 0));
-        task_11(root, "do");
-       /* std::string set = "do";
-        int pos = set.find('g');
-        if(pos != -1)
-            std::cout << "hello";*/
-        std::cout << "-----------------------\n";
-        //del(root, "do", 0);
-        print(root, "");
-        clear(root);
-    }
-    else
-    {
-        std::cout << "Error\n";
+        else
+        {
+            std::cout << "Error\n";
+        }
+        std::cout << "Continue? 1 - YES / 0 - NO \n";
+        std::cin >> flag;
     }
 }
-
