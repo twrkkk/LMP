@@ -145,39 +145,6 @@ void reset_all_flags(bool* flags, size_t count)
     }
 }
 
-void task_11_help(TrieTree& t, std::string set, std::string word, bool* flags)
-{
-    if (t->eow)
-    {
-        bool res = all_flags_true(flags, set.length());
-        
-        if (res)
-        {
-            std::cout << word << '\n';
-            reset_all_flags(flags, set.length());
-        }
-    }
-    for (size_t i = 0; i < 26; ++i)
-    {
-        if (t->ptrs[i])
-        {
-            int pos = set.find(i + 'a');
-            if (pos != -1)
-            {
-                flags[pos] = true;
-                task_11_help(t->ptrs[i], set, word + char(i + 'a'), flags);
-            }
-        }
-    }
-}
-
-void task_11(TrieTree& t, std::string set)
-{
-    bool* flags = new bool[set.length()]{0};
-    if (t)
-        task_11_help(t, set, "", flags);
-}
-
 void clear(TrieTree& t)
 {
     for (size_t i = 0; i < 26; ++i)
@@ -187,6 +154,53 @@ void clear(TrieTree& t)
     t = nullptr;
 }
 
+void task_11_help(TrieTree& t, std::string set, std::string word)
+{
+    if (t->eow)
+    {
+        bool* flags = new bool[set.length()]{0};
+
+        int pos = 0;
+        for (size_t i = 0; i < word.length(); i++)
+        {
+            pos = set.find(word[i]);
+            if (pos != -1)
+                flags[pos] = true;
+        }
+
+        bool res = true;
+        for (size_t i = 0; i < set.length() && res; i++)
+        {
+            if (!flags[i])
+                res = false;
+        }
+
+        if (res)
+            std::cout << word << '\n';
+    }
+
+    for (size_t i = 0; i < 26; ++i)
+    {
+        if (t->ptrs[i])
+        {
+            int pos = set.find(i + 'a');
+            if (pos != -1)
+            {
+                task_11_help(t->ptrs[i], set, word + char(i + 'a'));
+            }
+        }
+    }
+
+    if (!empty(t) && all_ptr_empty(t) && !t->eow)
+        clear(t);
+}
+
+void task_11(TrieTree& t, std::string set)
+{
+    bool* flags = new bool[set.length()]{0};
+    if (t)
+        task_11_help(t, set, "");
+}
 
 int main()
 {
