@@ -7,8 +7,11 @@ int main()
 	if (file)
 	{
 		std::string name = "abc";
-		Polyclinic p("xyz");
-		p.set_persons(file);
+		Polyclinic p("xyz", file);
+		//p.set_persons(file);
+		p.print(std::cout);
+		std::cout << "---------------------------\n";
+		p.delete_person();
 		p.print(std::cout);
 	}
 }

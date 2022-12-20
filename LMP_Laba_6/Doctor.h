@@ -1,5 +1,6 @@
 #pragma once
 #include "Persone.h"
+#include <map>
 
 enum Category
 {
@@ -16,6 +17,21 @@ enum Qualification
 	Psychiatrist,
 	Cardiologist
 };
+
+std::map <Category, std::string> category_to_string = {
+	{First, "First"},
+	{Second, "Second"},
+	{Third, "Third"},
+	{Highest, "Highest"},
+};
+
+std::map <Qualification, std::string> qualification_to_string = {
+	{Dentist, "Dentist"},
+	{Surgeon, "Surgeon"},
+	{Psychiatrist, "Psychiatrist"},
+	{Cardiologist, "Cardiologist"},
+};
+
 class Doctor : public Persone
 {
 private:
@@ -31,6 +47,6 @@ public:
 	}
 	void print(std::ostream& out) override
 	{
-		out << FIO << ' ' << gender << ' ' << qualification << ' ' << work_experience << ' ' << category << '\n';
+		out << FIO << ' ' << gender_to_string[gender] << ' ' << qualification_to_string[qualification] << ' ' << work_experience << ' ' << category_to_string[category] << '\n';
 	}
 };

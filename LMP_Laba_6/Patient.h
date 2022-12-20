@@ -16,6 +16,6 @@ public:
 	std::string get_insurance() const { return insurance; }
 	void print(std::ostream& out) override
 	{
-		out << FIO << ' ' << gender << ' ' << age << ' ' << insurance << '\n';
+		out << FIO << ' ' << gender_to_string[gender] << ' ' << age << ' ' << insurance << '\n';
 	}
 };
