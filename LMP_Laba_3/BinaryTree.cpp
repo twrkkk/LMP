@@ -3,6 +3,7 @@
 #include <string>
 #include <queue>
 
+
 using TInfo = int;
 struct NODE
 {
@@ -271,6 +272,7 @@ int calc(const Tree& t)
 //	return result;
 //}
 
+
 TInfo recursion_task(Tree t)
 {
 	TInfo result = 0;
@@ -278,10 +280,12 @@ TInfo recursion_task(Tree t)
 	{
 		if (t->left)
 			result = recursion_task(t->left);
+		else if (t->right)
+			result = recursion_task(t->right);
 		else
 			result = t->info;
 	}
-	
+
 	return result;
 }
 
@@ -304,49 +308,27 @@ TInfo non_recursion(Tree root)
 				q.push(t->left);
 				++countNext;
 			}
+			else if (t->right)
+			{
+				q.push(t->right);
+				++countNext;
+			}
 			else if (i == 1) // first in queue - left elem
 			{
 				flag = true;
 				result = t->info;
 			}
 
-			if (t->right && !flag)
-			{
-				q.push(t->right);
-				++countNext;
-			}
+			/*	if (t->right && !flag)
+				{
+					q.push(t->right);
+					++countNext;
+				}*/
 		}
 		count = countNext;
 	}
 	return result;
 }
-
-//TInfo non_recursion(Tree root)
-//{
-//	std::queue<Tree> q;
-//	if (root->left)
-//		q.push(root->left);
-//	TInfo result = 0;
-//	while (!q.empty())
-//	{
-//		Tree t = q.front();
-//		q.pop();
-//		if (t->left)
-//			q.push(t->left);
-//		else
-//			result = t->info;
-//	}
-//	return result;
-//}
-//
-//TInfo non_recursion_2(Tree root)
-//{
-//	TInfo result = root->info;
-//	while (root->left)
-//		result = root->left->info;
-//
-//	return result;
-//}
 
 void main()
 {
@@ -359,8 +341,8 @@ void main()
 	Print(root, 0);
 	std::cout << '\n';
 	std::cout << "Left Sheet : ";
-	//std::cout << recursion_task(root);
-	std::cout << non_recursion(root);
+	std::cout << recursion_task(root);
+	//std::cout << non_recursion(root);
 	std::cout << '\n';
 
 	Clear(root);
