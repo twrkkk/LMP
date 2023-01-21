@@ -6,6 +6,36 @@ using std::cin;
 using std::cout;
 using std::ifstream;
 
+void swapN(ptrNODE p1, ptrNODE p2)
+{
+	ptrNODE tmp = p1->next;
+	p1->next = p2->next;
+	p2->next = tmp;
+	if (p1->next)
+	{
+		p1->next->prev = p1;
+	}
+	if (p2->next)
+	{
+		p2->next->prev = p2;
+	}
+	tmp = p1->prev;
+	p1->prev = p2->prev;
+	p2->prev = tmp;
+	if (p1->prev)
+	{
+		p1->prev->next = p1;
+	}
+	if (p2->prev)
+	{
+		p2->prev->next = p2;
+	}
+}
+if (p1->next)
+{
+	p1->next->prev = p1;
+}
+
 //bool task_1(DLIST& list)
 //{
 //	int counter = 0;
@@ -29,7 +59,7 @@ using std::ifstream;
 /*
 удалить центральный элемент если список содержит нечетное кол-во элементов
 */
-bool task_1(DLIST& list)
+bool task_1(DLIST & list)
 {
 	bool result = false;
 	ptrNODE p = list.get_begin(), q = list.get_end();
@@ -50,7 +80,7 @@ bool task_1(DLIST& list)
 /*
 если список содержит четное кол-во элементов то вставить в центр сумму всех чисел
 */
-bool task_2(DLIST& list)
+bool task_2(DLIST & list)
 {
 	bool result = false;
 	ptrNODE p = list.get_begin(), q = list.get_end();
@@ -74,7 +104,7 @@ bool task_2(DLIST& list)
 удалить центральный элемент если список содержит нечетное кол-во элементов
 */
 
-bool task(DLIST& list)
+bool task(DLIST & list)
 {
 	bool result = false;
 	ptrNODE p = list.get_begin(), q = list.get_end();
