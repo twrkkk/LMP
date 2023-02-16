@@ -6,32 +6,24 @@ std::set<int> set_intersect(std::set<int> set1, std::set<int> set2)
 {
 	std::set<int> res;
 	for (int s1 : set1)
-	{
 		if (set2.find(s1) != set2.end())
 			res.insert(s1);
-	}
 	return res;
 }
 
 std::set<int> set_union(std::set<int> set1, std::set<int> set2)
 {
-	std::set<int> res;
-	for (int elem : set1)
-		if (res.find(elem) == res.end())
-			res.insert(elem);
+	std::set<int> res(set1);
 	for (int elem : set2)
-		if (res.find(elem) == res.end())
 			res.insert(elem);
-
 	return res;
 }
 
-std::set<int> set_difference(std::set<int> reduced, std::set<int> subtractible)
+std::set<int> set_difference(std::set<int> set1, std::set<int> set2)
 {
-	std::set<int> res;
-	for (int elem : reduced)
-		if (subtractible.find(elem) == subtractible.end())
-			res.insert(elem);
+	std::set<int> res(set1);
+	for (int elem : set2)
+		res.erase(elem);
 	return res;
 }
 
