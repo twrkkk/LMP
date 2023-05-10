@@ -1,17 +1,10 @@
-﻿#include <iostream>
-#include <Windows.h>
-#include <process.h>
+﻿#include <Windows.h>
 #include <algorithm>
+#include <iostream>
+#include <thread>
 
 const size_t N = 9;
 const size_t NTHREAD = 3;
-
-using INFORM = struct elem
-{
-	int* a;
-	size_t beg, end;
-	bool sorted;
-};
 
 bool is_sorted_non_parallel(int* a)
 {
@@ -25,60 +18,46 @@ bool is_sorted_non_parallel(int* a)
 	return flag;
 }
 
-unsigned __stdcall sorted_task(void* a)
+void sorted_task(int* a, int beg, int end, bool& sorted)
 {
-	INFORM* inform = (INFORM*)a;
 	bool flag = true;
-
-	if (inform->a[inform->end] < inform->a[inform->end - 1])
-	{
-		inform->sorted = false;
+	if (a[end] < a[end - 1])
 		flag = false;
-	}
 
 	if (flag)
 	{
-		int i = inform->beg;
-		while (i < inform->end && inform->a[i + 1] >= inform->a[i])
+		int i = beg;
+		while (i < end && a[i + 1] >= a[i])
 			++i;
-		if (i != inform->end)
+		if (i != end)
 			flag = false;
-
-		inform->sorted = flag;
 	}
 
-	_endthreadex(0);
-	return 0;
+	sorted = flag;
 }
 
 bool is_sorted_parallel(int* a)
 {
-	HANDLE TH[NTHREAD];
-	INFORM inform[NTHREAD];
+	std::thread TH[NTHREAD];
+	bool results[NTHREAD];
 	size_t n = N / NTHREAD;
 
 	for (int i = 0; i < NTHREAD; i++)
 	{
-		inform[i].a = a;
-		inform[i].beg = i * n;
 		if (i == NTHREAD - 1)
-			inform[i].end = N - 1;
+			TH[i] = std::thread(sorted_task, a, i * n, N - 1, std::ref(results[i]));
 		else
-			inform[i].end = (i + 1) * n;
-
-		TH[i] = (HANDLE)_beginthreadex(nullptr, 0, &sorted_task, &inform[i], 0, nullptr);
+			TH[i] = std::thread(sorted_task, a, i * n, (i + 1) * n, std::ref(results[i]));
 	}
-	WaitForMultipleObjects(NTHREAD, TH, true, INFINITE);
+	for (int i = 0; i < NTHREAD; i++)
+		TH[i].join();
 
 
-	bool isSorted = inform[0].sorted;
+	bool isSorted = results[0];
 	for (size_t i = 1; i < NTHREAD && isSorted; i++)
 	{
-		isSorted *= inform[i].sorted;
+		isSorted *= results[i];
 	}
-
-	for (size_t i = 0; i < NTHREAD; i++)
-		CloseHandle(TH[i]);
 
 	return isSorted;
 }
@@ -108,9 +87,12 @@ int main()
 {
 	int* a = new int[N];
 	srand(GetTickCount());
+
 	init_array(a, false);
 	//std::sort(a, a + N);
 	print_array(a, N);
-	std::cout << is_sorted_non_parallel(a) << '\n' << is_sorted_parallel(a) << '\n';
-}
 
+	bool isSorted;
+	sorted_task(a, 0, N - 1, isSorted);
+	std::cout << isSorted << '\n' << is_sorted_parallel(a) << '\n';
+}
