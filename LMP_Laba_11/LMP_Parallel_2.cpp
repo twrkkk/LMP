@@ -3,16 +3,16 @@
 #include <iostream>
 #include <thread>
 
-const size_t N = 9;
+const size_t N = 12;
 const size_t NTHREAD = 3;
 
-bool is_sorted_non_parallel(int* a)
+bool is_sorted_non_parallel(int* a, int count)
 {
 	int i = 0;
 	bool flag = true;
-	while (i < N - 1 && a[i + 1] >= a[i])
+	while (i < count && a[i + 1] >= a[i])
 		++i;
-	if (i != N - 1)
+	if (i != count - 1)
 		flag = false;
 
 	return flag;
@@ -40,7 +40,7 @@ bool is_sorted_parallel(int* a)
 {
 	std::thread TH[NTHREAD];
 	bool results[NTHREAD];
-	size_t n = N / NTHREAD;
+	size_t n = N / (NTHREAD + 1);
 
 	for (int i = 0; i < NTHREAD; i++)
 	{
@@ -49,15 +49,15 @@ bool is_sorted_parallel(int* a)
 		else
 			TH[i] = std::thread(sorted_task, a, i * n, (i + 1) * n, std::ref(results[i]));
 	}
+
+	bool isSorted = true;
+	isSorted *= is_sorted_non_parallel(a + n * NTHREAD, n);
+
 	for (int i = 0; i < NTHREAD; i++)
 		TH[i].join();
 
-
-	bool isSorted = results[0];
-	for (size_t i = 1; i < NTHREAD && isSorted; i++)
-	{
+	for (size_t i = 0; i < NTHREAD && isSorted; i++)
 		isSorted *= results[i];
-	}
 
 	return isSorted;
 }
@@ -88,8 +88,8 @@ int main()
 	int* a = new int[N];
 	srand(GetTickCount());
 
-	init_array(a, false);
-	//std::sort(a, a + N);
+	init_array(a);
+	std::sort(a, a + N);
 	print_array(a, N);
 
 	bool isSorted;

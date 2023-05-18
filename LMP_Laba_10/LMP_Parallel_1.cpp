@@ -3,7 +3,7 @@
 #include <process.h>
 #include <algorithm>
 
-const size_t N = 9;
+const size_t N = 12;
 const size_t NTHREAD = 3;
 
 using INFORM = struct elem
@@ -13,13 +13,13 @@ using INFORM = struct elem
 	bool sorted;
 };
 
-bool is_sorted_non_parallel(int* a)
+bool is_sorted_non_parallel(int* a, int count)
 {
 	int i = 0;
 	bool flag = true;
-	while (i < N - 1 && a[i + 1] >= a[i])
+	while (i < count && a[i + 1] >= a[i])
 		++i;
-	if (i != N - 1)
+	if (i != count - 1)
 		flag = false;
 
 	return flag;
@@ -55,7 +55,7 @@ bool is_sorted_parallel(int* a)
 {
 	HANDLE TH[NTHREAD];
 	INFORM inform[NTHREAD];
-	size_t n = N / NTHREAD;
+	size_t n = N / (NTHREAD + 1);
 
 	for (int i = 0; i < NTHREAD; i++)
 	{
@@ -68,14 +68,13 @@ bool is_sorted_parallel(int* a)
 
 		TH[i] = (HANDLE)_beginthreadex(nullptr, 0, &sorted_task, &inform[i], 0, nullptr);
 	}
+
+	bool isSorted = true;
+	isSorted *= is_sorted_non_parallel(a + n * NTHREAD, n);
 	WaitForMultipleObjects(NTHREAD, TH, true, INFINITE);
 
-
-	bool isSorted = inform[0].sorted;
-	for (size_t i = 1; i < NTHREAD && isSorted; i++)
-	{
+	for (size_t i = 0; i < NTHREAD && isSorted; i++)
 		isSorted *= inform[i].sorted;
-	}
 
 	for (size_t i = 0; i < NTHREAD; i++)
 		CloseHandle(TH[i]);
@@ -108,9 +107,8 @@ int main()
 {
 	int* a = new int[N];
 	srand(GetTickCount());
-	init_array(a, false);
-	//std::sort(a, a + N);
+	init_array(a);
+	std::sort(a, a + N);
 	print_array(a, N);
-	std::cout << is_sorted_non_parallel(a) << '\n' << is_sorted_parallel(a) << '\n';
+	std::cout << is_sorted_non_parallel(a, N) << '\n' << is_sorted_parallel(a) << '\n';
 }
-

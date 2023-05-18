@@ -3,8 +3,20 @@
 #include <iostream>
 #include <future>
 
-const size_t N = 9;
+const size_t N = 12;
 const size_t NTHREAD = 3;
+
+bool is_sorted_non_parallel(int* a, int count)
+{
+	int i = 0;
+	bool flag = true;
+	while (i < count && a[i + 1] >= a[i])
+		++i;
+	if (i != count - 1)
+		flag = false;
+
+	return flag;
+}
 
 bool sorted_task(int* a, int beg, int end)
 {
@@ -27,7 +39,7 @@ bool sorted_task(int* a, int beg, int end)
 bool is_sorted_parallel(int* a)
 {
 	std::future<bool> TH[NTHREAD];
-	size_t n = N / NTHREAD;
+	size_t n = N / (NTHREAD + 1);
 
 	for (int i = 0; i < NTHREAD; i++)
 	{
@@ -37,11 +49,10 @@ bool is_sorted_parallel(int* a)
 			TH[i] = std::async(sorted_task, a, i * n, (i + 1) * n);
 	}
 
-	bool isSorted = TH[0].get();
-	for (size_t i = 1; i < NTHREAD && isSorted; i++)
-	{
+	bool isSorted = true;
+	isSorted *= is_sorted_non_parallel(a + n * NTHREAD, n);
+	for (size_t i = 0; i < NTHREAD && isSorted; i++)
 		isSorted *= TH[i].get();
-	}
 
 	return isSorted;
 }
@@ -72,8 +83,8 @@ int main()
 	int* a = new int[N];
 	srand(GetTickCount());
 
-	init_array(a, false);
-	//std::sort(a, a + N);
+	init_array(a);
+	std::sort(a, a + N);
 	print_array(a, N);
 
 	bool isSorted = sorted_task(a, 0, N - 1);
