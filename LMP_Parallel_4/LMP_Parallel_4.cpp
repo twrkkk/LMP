@@ -4,7 +4,7 @@
 #include <thread>
 
 const size_t N = 9;
-const size_t NTHREAD = 3;
+const size_t NTHREAD = 4;
 
 long volatile sorted = 1;
 
@@ -23,7 +23,8 @@ void sorted_task(int* a, int beg, int end)
 			flag = 0;
 	}
 
-	_InterlockedAnd(&sorted, flag);
+	while (_InterlockedAnd(&sorted, flag) <= 0)
+		Sleep(0);
 }
 
 bool is_sorted_parallel(int* a)
@@ -31,14 +32,14 @@ bool is_sorted_parallel(int* a)
 	std::thread TH[NTHREAD];
 	size_t n = N / NTHREAD;
 
-	for (int i = 0; i < NTHREAD; i++)
+	for (int i = 0; i < NTHREAD - 1; i++)
 	{
-		if (i == NTHREAD - 1)
-			TH[i] = std::thread(sorted_task, a, i * n, N - 1);
-		else
-			TH[i] = std::thread(sorted_task, a, i * n, (i + 1) * n);
+		TH[i] = std::thread(sorted_task, a, i * n, (i + 1) * n);
 	}
-	for (int i = 0; i < NTHREAD; i++)
+
+	sorted_task(a, n * (NTHREAD - 1), N - 1);
+
+	for (int i = 0; i < NTHREAD - 1; i++)
 		TH[i].join();
 
 	return sorted;
@@ -70,8 +71,8 @@ int main()
 	int* a = new int[N];
 	srand(GetTickCount());
 
-	init_array(a, false);
-	//std::sort(a, a + N);
+	init_array(a);
+	std::sort(a, a + N);
 	print_array(a, N);
 
 	std::cout << is_sorted_parallel(a) << '\n';

@@ -4,7 +4,7 @@
 #include <algorithm>
 
 const size_t N = 12;
-const size_t NTHREAD = 3;
+const size_t NTHREAD = 4;
 
 using INFORM = struct elem
 {
@@ -55,28 +55,25 @@ bool is_sorted_parallel(int* a)
 {
 	HANDLE TH[NTHREAD];
 	INFORM inform[NTHREAD];
-	size_t n = N / (NTHREAD + 1);
+	size_t n = N / NTHREAD;
 
-	for (int i = 0; i < NTHREAD; i++)
+	for (int i = 0; i < NTHREAD - 1; i++)
 	{
 		inform[i].a = a;
 		inform[i].beg = i * n;
-		if (i == NTHREAD - 1)
-			inform[i].end = N - 1;
-		else
-			inform[i].end = (i + 1) * n;
+		inform[i].end = (i + 1) * n;
 
 		TH[i] = (HANDLE)_beginthreadex(nullptr, 0, &sorted_task, &inform[i], 0, nullptr);
 	}
 
 	bool isSorted = true;
-	isSorted *= is_sorted_non_parallel(a + n * NTHREAD, n);
-	WaitForMultipleObjects(NTHREAD, TH, true, INFINITE);
+	isSorted *= is_sorted_non_parallel(a + n * (NTHREAD - 1), n);
+	WaitForMultipleObjects(NTHREAD - 1, TH, true, INFINITE);
 
-	for (size_t i = 0; i < NTHREAD && isSorted; i++)
+	for (size_t i = 0; i < NTHREAD - 1 && isSorted; i++)
 		isSorted *= inform[i].sorted;
 
-	for (size_t i = 0; i < NTHREAD; i++)
+	for (size_t i = 0; i < NTHREAD - 1; i++)
 		CloseHandle(TH[i]);
 
 	return isSorted;

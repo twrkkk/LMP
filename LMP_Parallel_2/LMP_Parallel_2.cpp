@@ -1,24 +1,12 @@
 ﻿#include <Windows.h>
 #include <algorithm>
 #include <iostream>
-#include <future>
+#include <thread>
 
 const size_t N = 12;
-const size_t NTHREAD = 3;
+const size_t NTHREAD = 4;
 
-bool is_sorted_non_parallel(int* a, int count)
-{
-	int i = 0;
-	bool flag = true;
-	while (i < count && a[i + 1] >= a[i])
-		++i;
-	if (i != count - 1)
-		flag = false;
-
-	return flag;
-}
-
-bool sorted_task(int* a, int beg, int end)
+void sorted_task(int* a, int beg, int end, bool& sorted)
 {
 	bool flag = true;
 	if (a[end] < a[end - 1])
@@ -33,26 +21,28 @@ bool sorted_task(int* a, int beg, int end)
 			flag = false;
 	}
 
-	return flag;
+	sorted = flag;
 }
 
 bool is_sorted_parallel(int* a)
 {
-	std::future<bool> TH[NTHREAD];
-	size_t n = N / (NTHREAD + 1);
+	std::thread TH[NTHREAD];
+	bool results[NTHREAD];
+	size_t n = N / NTHREAD;
 
-	for (int i = 0; i < NTHREAD; i++)
+	for (int i = 0; i < NTHREAD - 1; i++)
 	{
-		if (i == NTHREAD - 1)
-			TH[i] = std::async(sorted_task, a, i * n, N - 1);
-		else
-			TH[i] = std::async(sorted_task, a, i * n, (i + 1) * n);
+		TH[i] = std::thread(sorted_task, a, i * n, (i + 1) * n, std::ref(results[i]));
 	}
 
+	sorted_task(a, n * (NTHREAD - 1), N - 1, results[NTHREAD - 1]);
+
+	for (int i = 0; i < NTHREAD - 1; i++)
+		TH[i].join();
+
 	bool isSorted = true;
-	isSorted *= is_sorted_non_parallel(a + n * NTHREAD, n);
-	for (size_t i = 0; i < NTHREAD && isSorted; i++)
-		isSorted *= TH[i].get();
+	for (size_t i = 0; i < NTHREAD; i++)
+		isSorted *= results[i];
 
 	return isSorted;
 }
@@ -87,6 +77,7 @@ int main()
 	std::sort(a, a + N);
 	print_array(a, N);
 
-	bool isSorted = sorted_task(a, 0, N - 1);
+	bool isSorted;
+	sorted_task(a, 0, N - 1, isSorted);
 	std::cout << isSorted << '\n' << is_sorted_parallel(a) << '\n';
 }
