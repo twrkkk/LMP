@@ -29,7 +29,7 @@ void copy(const vector<int>& source, vector<int>& dest, int count)
 vector<int> v{ 2,4,6,14,9, 22, 30 }; //2,4,6,14,9
 vector<int> arifm(v.size());
 vector<int> max_prog(v.size());
-int len_max = -1;
+int len_max = 0;
 
 void Try(int i, int k, int n) // i - start; k - prog size; n - array size
 {
@@ -61,12 +61,12 @@ void Try(int i, int k, int n) // i - start; k - prog size; n - array size
 
 int main()
 {
-	for (int i = 0; i < v.size(); i++)
+	for (int i = 0; i < v.size() - len_max; i++)
 	{
+		int a = max_prog.max_size();
 		arifm[0] = v[i];
 		Try(i, 1, v.size());
 	}
 
 	print(max_prog, len_max);
 }
-
