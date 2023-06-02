@@ -1,0 +1,129 @@
+#include <iostream>
+#include <vector>
+using std::min;
+using std::max;
+using std::cout;
+using std::vector;
+
+struct Point 
+{
+    double x;
+    double y;
+};
+
+struct Segment 
+{
+    Point p1;
+    Point p2;
+};
+
+double maxPerimeter = 0;
+
+vector<Point> max_polygon;
+
+double area(Point a, Point b, Point c) 
+{
+    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+}
+
+bool intersect(Segment s1, Segment s2) 
+{
+    //Вычисляем знаки ориентированных площадей треугольников
+    double s11 = area(s1.p1, s1.p2, s2.p1);
+    double s12 = area(s1.p1, s1.p2, s2.p2);
+    double s21 = area(s2.p1, s2.p2, s1.p1);
+    double s22 = area(s2.p1, s2.p2, s1.p2);
+    //Если точки лежат по разные стороны от прямых, то отрезки пересекаются
+    if (s11 * s12 < 0 && s21 * s22 < 0) return true;
+    //Если точки лежат на прямых и внутри отрезков, то отрезки пересекаются
+    if (s11 == 0 && min(s1.p1.x, s1.p2.x) <= s2.p1.x && max(s1.p1.x, s1.p2.x) >= s2.p1.x &&
+        min(s1.p1.y, s1.p2.y) <= s2.p1.y && max(s1.p1.y, s1.p2.y) >= s2.p1.y) return true;
+    if (s12 == 0 && min(s1.p1.x, s1.p2.x) <= s2.p2.x && max(s1.p1.x, s1.p2.x) >= s2.p2.x &&
+        min(s1.p1.y, s1.p2.y) <= s2.p2.y && max(s1.p1.y, s1.p2.y) >= s2.p2.y) return true;
+    if (s21 == 0 && min(s2.p1.x, s2.p2.x) <= s1.p1.x && max(s2.p1.x, s2.p2.x) >= s1.p1.x &&
+        min(s2.p1.y, s2.p2.y) <= s1.p1.y && max(s2.p1.y, s2.p2.y) >= s1.p1.y) return true;
+    if (s22 == 0 && min(s2.p1.x, s2.p2.x) <= s1.p2.x && max(s2.p1.x, s2.p2.x) >= s1.p2.x &&
+        min(s2.p1.y, s2.p2.y) <= s1.p2.y && max(s2.p1.y, s2.p2.y) >= s1.p2.y) return true;
+    //В остальных случаях отрезки не пересекаются
+    return false;
+}
+
+bool edge_valid(Point p, vector<Point> polygon)
+{
+    if (polygon.size() < 2) return true;
+    Point last = polygon.back();
+    bool flag = true;
+    Segment s1 = { p, last };
+    for (int i = 0; i < polygon.size() - 2; ++i)
+    {
+        Segment s2 = { polygon[i], polygon[i + 1] };
+        if (intersect(s1, s2)) 
+            flag = false;
+    }
+    return flag;
+}
+
+bool last_edge_valid(Point p, vector<Point> polygon)
+{
+    if (polygon.size() < 2) return true;
+    Point last = polygon.back();
+    bool flag = true;
+    Segment s1 = { p, last };
+    for (int i = 1; i < polygon.size() - 2; ++i)
+    {
+        Segment s2 = { polygon[i], polygon[i + 1] };
+        if (intersect(s1, s2)) 
+            flag = false;
+    }
+    return flag;
+}
+
+double perimeter(vector<Point> polygon)
+{
+    double sum = 0;
+    for (int i = 0; i < polygon.size(); ++i)
+    {
+        int j = (i + 1) % polygon.size();
+        double dx = polygon[i].x - polygon[j].x;
+        double dy = polygon[i].y - polygon[j].y;
+        sum += sqrt(dx * dx + dy * dy);
+    }
+    return sum;
+}
+
+void build_polygons(vector<Point> coords, vector<Point> polygon) 
+{
+    if(coords.size() == polygon.size() && last_edge_valid(polygon[0], polygon))
+    {
+        polygon.push_back(polygon[0]);
+        double P = perimeter(polygon);
+        if (P > maxPerimeter)
+        {
+            maxPerimeter = P;
+            max_polygon = polygon;
+        }
+    }
+    for (int i = 0; i < coords.size(); ++i) 
+    {
+        if (edge_valid(coords[i], polygon))
+        {
+            polygon.push_back(coords[i]);
+            build_polygons(coords, polygon);
+            polygon.erase(polygon.end() - 1);
+        }
+    }
+}
+
+int main() 
+{
+    vector<Point> coords = { {0, 0}, {3, 3}, {3, 0}, {0, 3}, {2, 5} };
+    vector<Point> polygon;
+    build_polygons(coords, polygon);
+    cout << "Polygon with max perimeter: ";
+    for (auto p : max_polygon)
+    {
+        cout << "( " << p.x << ", " << p.y << " )";
+    }
+    cout << "\nPerimeter: " << maxPerimeter << '\n';
+    return 0;
+}

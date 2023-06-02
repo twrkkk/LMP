@@ -1,0 +1,53 @@
+#include <iostream>
+
+using item = std::pair<float, float>; // std::pair<weight, price>
+
+const size_t N = 5;
+item items[N];
+
+size_t resultItemsCount = 0;
+item  result[N];
+bool check[N], hasResult = false;
+float currentCost = 0.0f;
+
+void task41(float maxWeight, float minCost,  float currentWeight = 0.0f, size_t currentResultItem = 0) {
+    for (size_t i = 0; i < N; ++i) {
+        if (currentWeight + items[i].first <= maxWeight && !check[i] && currentCost < minCost) {
+            result[currentResultItem] = items[i];
+            ++resultItemsCount;
+            currentCost += items[i].second;
+            check[i] = true;
+            hasResult = currentCost >= minCost;
+            if (!hasResult) {
+                task41(maxWeight, minCost, currentWeight + items[i].first, currentResultItem + 1);
+                if (!hasResult) {
+                    check[i] = false;
+                    currentCost -= items[i].second;
+                    --resultItemsCount;
+                }
+            }
+        }
+    }
+}
+
+int main() {
+    items[0] = std::make_pair(10.0f, 50.0f);
+    items[1] = std::make_pair(5.0f, 70.0f);
+    items[2] = std::make_pair(15.0f, 10.0f);
+    items[3] = std::make_pair(25.0f, 200.0f);
+    items[4] = std::make_pair(10.0f, 5.0f);
+
+
+    task41(25, 130);
+    if (hasResult) {
+        for (int i = 0; i < resultItemsCount; ++i) 
+            std::cout << result[i].first << ' ' << result[i].second << '\n';
+    }
+    else {
+        std::cout << "No result!\n";
+    }
+
+    std::cout << "Programm finished\n";
+    std::cin.get();
+    return 0;
+}

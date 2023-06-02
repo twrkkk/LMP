@@ -1,0 +1,49 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+const int N = 5, K = 4; // кол-во стран (вершин) / кол-во цветов
+int map[N][N] = { // карта - таблица смежности (если 1 значит страны соседи - как в графе)
+    {0, 1, 1, 0, 0},
+    {1, 0, 1, 1, 0},
+    {1, 1, 0, 1, 1},
+    {0, 1, 1, 0, 1},
+    {0, 0, 1, 1, 0}
+};
+int color[N] = {-1, -1, -1, -1, -1}; // массив окраски стран
+
+bool ok(int v) {
+    for (int i = 0; i < N; i++) {
+        if (i != v && map[v][i] && color[i] == color[v]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool dfs(int v) {
+    if (v == N) {
+        return true;
+    }
+    for (int i = 1; i <= K; i++) {
+        color[v] = i;
+        if (ok(v) && dfs(v + 1)) {
+            return true;
+        }
+        color[v] = 0;
+    }
+    return false;
+}
+
+int main() {
+    if (dfs(0)) {
+        std::cout << "YES!\n";
+        for (int i = 0; i < N; ++i) 
+            std::cout << color[i] << " ";
+        std::cout << '\n';
+    } else 
+        std::cout << "NO\n";
+
+    std::cin.get();
+    return 0;
+}

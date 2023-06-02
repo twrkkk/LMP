@@ -1,0 +1,67 @@
+#include <iostream>
+#include "Source.h"
+
+using namespace std;
+int sumB = 0, sumC = 0;
+bool flag = false;
+bool splitArray(int index, int N, int* arr, int* B, int* C)
+{
+    if (!flag)
+    {
+        if (index == N)
+        {
+            if (sumB == sumC)
+            {
+                flag = true;
+            }
+        }
+        else {
+         
+                B[index] = arr[index];
+                sumB += arr[index];
+                splitArray(index + 1, N, arr, B, C);
+                sumB -= arr[index];
+                B[index] = -1;
+                C[index] = arr[index];
+                sumC += arr[index];
+                splitArray(index + 1, N, arr, B, C);
+                sumC -= arr[index];
+                C[index] = -1;
+            
+        }
+    }
+    return flag;
+}
+
+
+int main() {
+	setlocale(LC_ALL, "ru");
+	int n;
+	string end;
+	while (end != "end" && end!="END") {
+		cout << "Введите размер массива:";
+		cin >> n;
+		int* arr = new int[n];
+        int* B = new int[n];
+        int* C = new int[n];
+		cout << "Введите " << n << "эл-ов:";
+		for (int i = 0; i < n; ++i) {
+			cin >> arr[i];
+            B[i] = 0;
+            C[i] = 0;
+		}
+		
+    
+            splitArray(0, n, arr, B, C);
+            if (flag) {
+                cout << "можно" << endl;
+                
+            }
+            else   cout << "нельзя" << endl;
+        
+		cout << "Если хотите завершить работу, введите(end/END):";
+			cin >> end;
+	}
+    
+	return 0;
+}

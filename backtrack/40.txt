@@ -1,0 +1,48 @@
+#include <iostream>
+
+using item = std::pair<float, float>; // std::pair<weight, price>
+
+const size_t N = 5;
+item items[N];
+
+size_t maxCost = 0, resultItemsCount = 0, maxCostResultItemsCount = 0;
+item  result[N], maxCostResult[N];
+bool check[N];
+
+void task40(float maxWeight, float currentWeight = 0.0f, float currentCost = 0.0f, size_t currentResultItem = 0) {
+    if (currentCost > maxCost) {
+        maxCost = currentCost;
+        maxCostResultItemsCount = resultItemsCount;
+        for (int i = 0; i < resultItemsCount; ++i)
+            maxCostResult[i] = result[i];
+    }
+    for (size_t i = 0; i < N; ++i) {
+        if (currentWeight + items[i].first <= maxWeight && !check[i]) {
+                result[currentResultItem] = items[i];
+                ++resultItemsCount;
+                currentCost += items[i].second;
+                check[i] = true;
+                task40(maxWeight, currentWeight + items[i].first, currentCost, currentResultItem + 1);
+                check[i] = false;
+                currentCost -= items[i].second;
+                --resultItemsCount;
+        }
+   }
+}
+
+int main() {
+    items[0] = std::make_pair(10.0f, 50.0f);
+    items[1] = std::make_pair(5.0f, 70.0f);
+    items[2] = std::make_pair(15.0f, 10.0f);
+    items[3] = std::make_pair(25.0f, 200.0f);
+    items[4] = std::make_pair(10.0f, 5.0f);
+
+    task40(25);
+    for (int i = 0; i < maxCostResultItemsCount; ++i) {
+        std::cout << maxCostResult[i].first << ' ' << maxCostResult[i].second << '\n';
+    }
+
+    std::cout << "Programm finished\n";
+    std::cin.get();
+    return 0;
+}

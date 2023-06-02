@@ -1,0 +1,106 @@
+//11. Найти длину кратчайшего цикла в графе.
+#include <iostream>
+#include <vector>
+#include <list>
+#include <algorithm>
+#include <Windows.h>
+using namespace std;
+int n;
+int m;
+std::vector<std::vector<int> > dist; //матрица смежности
+std::vector<std::vector<bool> > arr_vis;//матрица рёбер
+list<int> path; 
+int path_len;
+int min_len = -1;
+list<int> min_path;
+void Try(int cur_vertex, int start_vertex) // start_vertex нужен чтобы проверить замкнут ли цикл
+{
+    for (int i = 0; i <= n; i++) {
+        if(dist[cur_vertex][i] > 0)
+        if (i == start_vertex && arr_vis[cur_vertex][i] && arr_vis[i][cur_vertex])
+        {
+            path_len += dist[cur_vertex][start_vertex];
+            if (path_len < min_len || min_len == -1)
+            {
+                min_len = path_len;
+                min_path = path;
+                min_path.push_back(start_vertex);
+            }
+            path_len -= dist[cur_vertex][start_vertex];
+        }
+        else
+        if(arr_vis[cur_vertex][i])
+        {
+            path_len += dist[cur_vertex][i];
+            path.push_back(i);
+            arr_vis[cur_vertex][i] = false;
+            arr_vis[i][cur_vertex] = false;
+            Try(i, start_vertex);
+            // откат
+            path.pop_back();
+            arr_vis[cur_vertex][i] = true;
+            arr_vis[i][cur_vertex] = true;
+            path_len -= dist[cur_vertex][i];
+        }
+    }
+
+
+
+}
+
+
+void find_closed_path() {
+    path_len = 0;
+    int i = 0;
+    while (i < n) { //просчитать пути из каждой вершины
+        path.clear();
+        path.push_back(i);
+        path_len = 0;
+        Try(i, i);
+        i++;
+    }
+}
+
+
+int main() {
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+
+    cout << "Введите количество вершин: ";
+    cin >> n;
+    cout << "Введите количество ребер: ";
+    cin >> m;
+    dist.resize(n + 1);
+    for (int i = 0; i < n + 1; ++i)
+        dist[i].resize(n + 1);
+
+    arr_vis.resize(n + 1);
+    for (int i = 0; i < n + 1; ++i)
+        arr_vis[i].resize(n + 1);
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < n; ++j)
+            arr_vis[i][j] = false;
+
+    cout << "Введите ребра в виде 3 чисел u v w, где u и v - индексы вершин, а w - вес ребер:" << endl;
+    for (int i = 0; i < m; i++) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        dist[u][v] = w;
+        dist[v][u] = w;
+        arr_vis[u][v] = true;
+        arr_vis[u][v] = true;
+    }
+
+    find_closed_path();
+    if (min_path.empty()) {
+        cout << "Цикл не найден" << endl;
+    }
+    else {
+        cout << "Путь цикла: ";
+        for (int i : min_path)
+            cout << i << " ";
+        cout << endl;
+        cout << "Длина пути: " << min_len;
+    }
+    return 0;
+}

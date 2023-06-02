@@ -1,0 +1,90 @@
+#include <iostream>
+#include <fstream>
+#include <Windows.h>
+
+using std::cout;
+
+const int  m = 10, n = 8;
+bool arr[n][m];
+struct square
+{
+	int x, y, size;
+	square(int x = 0, int y = 0, int size = 1) :x(x), y(y), size(size) {}
+	bool operator>(const square& obj) { return size > obj.size; }
+};
+
+void get_f_f(std::ifstream& stream);
+bool is_0_fill(square sq);
+square task(square sq);
+
+int main()
+{
+	std::ifstream in("in.txt");
+	SetConsoleOutputCP(1251);
+	get_f_f(in);
+	square result;
+	result = task(square());
+	cout << result.x << ' ' << result.y << ' ' << result.size << '\n';
+	system("pause");
+}
+
+void get_f_f(std::ifstream& stream)
+{
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++)
+			stream >> arr[i][j];
+}
+
+bool is_0_fill(square sq)
+{
+	bool res = true;
+	int i = 0, j = 0;
+	while (res && i < sq.size)
+	{
+		j = 0;
+		while (res && j < sq.size)
+		{
+			if (arr[i + sq.y][j + sq.x])
+				res = false;
+			j++;
+		}
+		i++;
+	}
+	return res;
+}
+
+square task(square sq)
+{
+	if (is_0_fill(sq) && sq.x + sq.size <= m && sq.y + sq.size <= n)
+	{
+		sq.size++;
+		while (is_0_fill(sq) && sq.x + sq.size <= m && sq.y + sq.size <= n)
+			sq.size++;
+		sq.size--;
+	}
+
+	if (sq.x == sq.y && sq.x + sq.size <= m && sq.y + sq.size <= n)
+	{
+		sq = max(max(task(square(sq.x + 1, sq.y, sq.size)), task(square(sq.x, sq.y + 1, sq.size))), max(task(square(sq.x + 1, sq.y + 1, sq.size)), sq));
+	}
+	else if (sq.x > sq.y && sq.x + sq.size <= m)
+	{
+		sq = max(task(square(sq.x + 1, sq.y, sq.size)), sq);
+	}
+	else if (sq.x < sq.y && sq.y + sq.size <= n)
+	{
+		sq = max(task(square(sq.x, sq.y + 1, sq.size)), sq);
+	}
+
+	return sq;
+}
+
+void print()
+{
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < m; j++)
+			cout << arr[i][j] << ' ';
+		cout << '\n';
+	}
+}

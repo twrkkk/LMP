@@ -1,0 +1,66 @@
+#include <iostream>
+
+const int N = 5, M=4;//размер лабиринта
+//0 - проход, 1 - тупик
+bool map[N][M]{
+    {0, 0, 0, 0},
+    {1, 1, 0, 1},
+    {1, 0, 0, 1},
+    {0, 0, 1, 0},
+    {0, 0, 0, 0}
+};
+
+bool rez[N][M];//результирующий путь, 1 где мы шли, 0 куда не шли
+
+std::pair<int, int> start(0, 0);//точка начала
+std::pair<int, int> end(N-1, M-1);//точка конца
+std::pair<int, int> cord[4]{ {0,1},{1,0},{-1,0},{0,-1} };//вправо, вниз, влево, вверх
+
+//печать лабиринта
+void print_map() {
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < M; ++j)
+            std::cout << map[i][j] << ' ';
+        std::cout << '\n';
+    }
+}
+//печать пути
+void print_rez() {
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < M; ++j)
+            std::cout << rez[i][j] << ' ';
+        std::cout << '\n';
+    }
+}
+//вершина находится в лабиринте
+bool ok(std::pair<int, int> v) {
+    return ((v.first >= 0 && v.first < N) && (v.second >= 0 && v.second < M)) ? (!map[v.first][v.second] ? true : false) : false;
+}
+//обход
+bool flag = false;
+void dfs(std::pair<int,int> start) {
+    if (start == end) {
+        flag = true;
+        std::cout << '\n';
+        rez[start.first][start.second] = 1;
+        print_rez();
+    }
+    for (int i = 0; i < 4; ++i)
+    {
+        rez[start.first][start.second] = 1;
+        start = { start.first + cord[i].first,start.second + cord[i].second };
+        if (ok(start) && !rez[start.first][start.second])
+            dfs(start);
+        start = { start.first - cord[i].first,start.second - cord[i].second };
+        rez[start.first][start.second] = 0;
+    }
+}
+
+int main() {
+    rez[start.first][start.second] = true;
+    print_map();
+    dfs(start);
+    std::cout << flag;
+    std::cin.get();
+    return 0;
+}

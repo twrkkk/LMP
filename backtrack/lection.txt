@@ -1,0 +1,182 @@
+#include <iostream>
+
+// можно ли пройти конем по всей доске из заданной клетки
+//const int dx[8] = { 2,2,1,-1,-2,-2,-1,1 };
+//const int dy[8] = { -1,1,2,2,1,-1,-2,-2 };
+//const int n = 5;
+//
+//int a[n][n];
+//
+//bool Try(int m, int x, int y)
+//{
+//    int k = -1, u, v;
+//    bool result = false;
+//    do{
+//        result = false;
+//        k += 1;
+//        u = x + dx[k];
+//        v = y + dy[k];
+//        if (u >= 0 && u < n && v >= 0 && v < n && a[u][v] == 0) {
+//            a[u][v] = m;
+//            if (m < n * n) {
+//                result = Try(m + 1, u, v);
+//                if (!result)
+//                    a[u][v] = 0;
+//            }
+//            else
+//                result = true;
+//        }
+//    } while (!result && k < 8);
+//    return result;
+//}
+
+// ---------------------------------------------------------
+
+// 8 ферзей
+const int n = 5;
+
+int x[n];
+bool y[n];
+bool b[2 * n - 1];
+bool c[2 * n - 1];
+
+//bool Try(int i)
+//{
+//    int k = -1;
+//    bool result;
+//    do {
+//        k += 1;
+//        result = false;
+//        if (y[k] && b[i - k + n - 1] && c[i + k]) {
+//            x[i] = k;
+//            y[k] = false;
+//            b[i - k + n - 1] = false;
+//            c[i + k] = false;
+//            if (i < n - 1) {
+//                result = Try(i + 1);
+//                if (!result) {
+//                    y[k] = true;
+//                    b[i + -k + n - 1] = true;
+//                    c[i + k] = true;
+//                }
+//            }
+//            else
+//                result = true;
+//        }
+//    } while (!result && k != n - 1);
+//    return result;
+//}
+
+// ферзи поиск всех возможных решений
+//void Try(int i)
+//{
+//    for (int k = 0; k < n; ++k) {
+//        if (y[k] && b[i - k + n - 1] && c[i + k]) {
+//            x[i] = k;
+//            y[k] = false;
+//            b[i - k + n - 1] = false;
+//            c[i + k] = false;
+//            if (i < n - 1)
+//                Try(i + 1);
+//            else {
+//                // печать x
+//            }
+//            y[k] = true;
+//            b[i + -k + n - 1] = true;
+//            c[i + k] = true;
+//
+//        }
+//    }
+//}
+
+// ---------------------------------------------------------
+
+// Граф. 2 точки (стартовая, конечная)
+// Найти:
+// a) хотя бы один путь
+// b) все пути
+// c) кратчайший путь
+
+const int n = 7;
+int map[n][n];
+int road[n];
+int road_min[n];
+bool include[n]; //были ли в точке
+
+bool result = false;
+
+int len_cur = 0;
+int len_min = 0;
+
+// a)
+//void Try(int start, int finish, int m)
+//{
+//    if (start == finish) {
+//        result = true;
+//        for (int i = 0; i < m; ++i)
+//            std::cout << road[i] << " -> ";
+//        std::cout << '\n';
+//    }
+//    else {
+//        for (int i = 0; i < n; ++i)
+//            if (map[start][i] != 0 && !include[i]) {
+//                road[m] = i;
+//                include[i] = true;
+//                Try(i, finish, m + 1);
+//                include[i] = false;
+//            }
+//    }
+//}
+
+// Кратчайшее расстояние
+// c)
+void Try(int start, int finish, int m)
+{
+    if (start == finish) {
+        len_min = len_cur;
+        for (int i = 0; i < m; ++i)
+            road_min[i] = road[i];
+    }
+    else {
+        for (int i = 0; i < n; ++i)
+            if (map[start][i] != 0 && !include[i] && (len_min == 0 || len_cur + map[start][i] < len_min)) {
+                road[m] = i;
+                include[i] = true;
+                len_cur += map[start][i];
+                Try(i, finish, m + 1);
+                len_cur -= map[start][i];
+                include[i] = false;
+            }
+    }
+}
+
+int main()
+{
+    // конь
+    int x, y;
+    a[x][y] = 1;
+    bool solve = Try(2, x, y);
+
+    // ферзи
+    if (Try(0)) {
+        //
+    }
+
+    // Граф (первый найденный путь)
+    int start, finish;
+    include[start] = true;
+    road[0] = start;
+    Try(start, finish, 1);
+    if (!result)
+        std::cout << "Проезда нет в графе екаламене....\n";
+
+    // граф (кратчайший путь)
+    if (!len_min)
+        std::cout << "Нет пути...\n";
+
+    std::cin.get();
+    return 0;
+}
+
+//  ДЗ:
+// 40, 41, 42, 44
