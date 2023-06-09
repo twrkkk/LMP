@@ -88,9 +88,9 @@ void Distribute(Sequence& f0, std::string filename, Sequence f[number_of_files],
 
 	int ord = 0;
 
-	while (!f0.eof)
+	if (start)
 	{
-		if (start)
+		while (!f0.eof)
 		{
 			size_t i(0);
 			std::vector <stor_str> arr;
@@ -113,12 +113,16 @@ void Distribute(Sequence& f0, std::string filename, Sequence f[number_of_files],
 				f[Q[ord]].file.write((char*)&f[Q[ord]].elem, sizeof(stor_str));
 				i += 1;
 			}
+			ord = (ord + 1) % number_of_files;
 		}
-		else
+	}
+	else
+	{
+		while (!f0.eof)
 		{
 			f[Q[ord]].CopyRun(f0, f0.count);
+			ord = (ord + 1) % number_of_files;
 		}
-		ord = (ord + 1) % number_of_files;
 	}
 	f0.Close();
 	for (int i = 0; i < number_of_files; ++i)
@@ -217,11 +221,11 @@ void Sorting(std::string filename, size_t n)
 		Distribute(f0, filename, f, Q);
 		Print_Files();
 		Merge(f0, filename, f, Q);
-	Print("data.txt");
+		Print("data.txt");
 		f0.count *= number_of_files;
 		for (int i = 0; i < number_of_files; ++i)
 			f[i].count *= number_of_files;
-	} 
+	}
 	remove("f1.txt");
 	for (int i = 0; i < number_of_files; ++i)
 	{
